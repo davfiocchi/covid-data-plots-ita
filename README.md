@@ -1,29 +1,26 @@
-# README #
+# COVID DATA PLOTS 
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This repository contains a simple Python script to plot Italian COVID-19 data.  
 
-### What is this repository for? ###
+The data is provided by Civil Protection Department (Dipartimento Protezione Civile) and can be found [here](https://github.com/pcm-dpc/COVID-19)
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+I made this script for me to have a better understanding of what is the COVID situation like in Italy.  
+I hope that it might be useful also for others! 
 
-### How do I get set up? ###
+### How do I get set up?
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+* Clone this repo
+* Clone data 
+```
+git clone https://github.com/pcm-dpc/COVID-19.git
+```
+* Run the script
+```
+python ./make_graphs.py
+```
 
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+### TODO
+* regional data plot as script parameter
+* province data plot as script parameter
+* covid data auto update when calling the script
+* covid data clone if not available
