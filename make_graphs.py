@@ -42,7 +42,7 @@ def plot_measure(measure, dates, title, is_variation=False):
     ax = fig.subplots()
 
     # plot measure
-    ax.plot(dates, measure, label=title, marker='o', linestyle='None')
+    ax.plot(dates, measure, marker='o', linestyle='None')
 
     # plot trend
     if is_variation:
