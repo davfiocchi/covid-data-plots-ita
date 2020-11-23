@@ -10,10 +10,9 @@ I hope that it might be useful also for others!
 ### How do I get set up?
 
 * Clone this repo
-* Clone data 
-```
-git clone https://github.com/pcm-dpc/COVID-19.git
-```
+* Install requirements
+  * Matplot lib [install instructions](https://matplotlib.org/users/installing.html#installing-an-official-release)
+  * GitPython [install instructions](https://gitpython.readthedocs.io/en/stable/intro.html#installing-gitpython)
 * Run the script
 ```
 python ./make_graphs.py
@@ -22,5 +21,3 @@ python ./make_graphs.py
 ### TODO
 * regional data plot as script parameter
 * province data plot as script parameter
-* covid data auto update when calling the script
-* covid data clone if not available

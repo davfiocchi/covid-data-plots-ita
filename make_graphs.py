@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime, date
 import math
+import git
 
 # plotting
 import matplotlib
@@ -68,6 +69,27 @@ def plot_measure(measure, dates, title, is_variation=False):
 
 
 if __name__ == "__main__":
+
+    # update or clone data
+    if os.path.isdir('COVID-19'):
+
+        g = git.cmd.Git('COVID-19')
+
+        print("Updating data...")
+
+        ret = g.fetch()
+        if ret != '': g.pull()
+
+        print("Data up-to-date!")
+
+    else:
+        print("Cloning data from https://github.com/pcm-dpc/COVID-19.git (it takes several minutes) ...")
+
+        g = git.cmd.Git('./')
+        g.clone('https://github.com/pcm-dpc/COVID-19.git')
+
+        print("Cloning done!")
+
     # load data
     data_file_path = os.path.join('COVID-19', 'dati-json', 'dpc-covid19-ita-andamento-nazionale.json')
 
