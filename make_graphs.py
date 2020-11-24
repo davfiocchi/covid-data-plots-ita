@@ -51,6 +51,11 @@ def plot_events(dates, ax):
 
 
 def plot_measure(measure, dates, title, is_variation=False):
+    """
+    Plot single measure
+    
+    Plot measure, define each plot style, plot trend, ...
+    """
     global n_figures
 
     fig = plt.figure(n_figures)
@@ -81,6 +86,11 @@ def plot_measure(measure, dates, title, is_variation=False):
 
 
 def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, staying_at_home, positives, healed, deaths, area_name):
+    """
+    Plot all measures
+    
+    Derive and plot data for all measures
+    """
     variation_hospitalized_with_sympthoms = np.diff(np.array(hospitalized_with_sympthoms))
     variation_intensive_care_unit = np.diff(np.array(intensive_care_unit))
     variation_staying_at_home = np.diff(np.array(staying_at_home))
@@ -106,7 +116,11 @@ def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, s
 
 
 def plot_national_data():
-
+    """
+    Plot national data
+    
+    Loads and plot national data
+    """
     data_file_path = os.path.join('COVID-19', 'dati-json', 'dpc-covid19-ita-andamento-nazionale.json')
 
     with open(data_file_path, 'r') as data_file:
@@ -144,7 +158,11 @@ def plot_national_data():
 
 
 def plot_regional_data(region_list):
+    """
+    Plot regional data
 
+    Loads and plot data for each region in region_list
+    """
     region_dict = {}
 
     for region_province in region_list:
