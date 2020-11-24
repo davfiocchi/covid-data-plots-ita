@@ -15,9 +15,8 @@ I hope that it might be useful also for others!
   * GitPython [install instructions](https://gitpython.readthedocs.io/en/stable/intro.html#installing-gitpython)
 * Run the script
 ```
-python ./make_graphs.py
+python ./make_graphs.py [<region1>] ... [<region N>]
 ```
 
 ### TODO
-* regional data plot as script parameter
-* province data plot as script parameter
+* plot events based on province/region
