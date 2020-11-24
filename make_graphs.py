@@ -36,6 +36,19 @@ def plot_trend(measure, dates, ax):
     return
 
 
+def plot_events(dates, ax):
+    """
+    Plot events
+    
+    Plot events as vertical lines
+    """
+    ax.axvline(dates.index(date(2020, 9, 14).strftime("%b %d")), label='Riapertura scuole', linestyle='--', color='g')
+    ax.axvline(dates.index(date(2020, 10, 24).strftime("%b %d")), label='DPCM 24 ottobre', linestyle='--', color='c')
+    ax.axvline(dates.index(date(2020, 11, 3).strftime("%b %d")), label='DPCM 3 novembre', linestyle='--', color='m')
+
+    return
+
+
 def plot_measure(measure, dates, title, is_variation=False):
     global n_figures
 
@@ -49,10 +62,8 @@ def plot_measure(measure, dates, title, is_variation=False):
     if is_variation:
         plot_trend(measure, dates, ax)
 
-    # plot events as vertical lines
-    ax.axvline(dates.index(date(2020, 9, 14).strftime("%b %d")), label='Riapertura scuole', linestyle='--', color='g')
-    ax.axvline(dates.index(date(2020, 10, 24).strftime("%b %d")), label='DPCM 24 ottobre', linestyle='--', color='c')
-    ax.axvline(dates.index(date(2020, 11, 3).strftime("%b %d")), label='DPCM 3 novembre', linestyle='--', color='m')
+    # plot events
+    plot_events(dates, ax)
 
     # x axis properties
     dates_step = math.floor(len(dates)/(N_TICKS-1))
