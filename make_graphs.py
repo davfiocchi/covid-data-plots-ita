@@ -231,7 +231,7 @@ if __name__ == "__main__":
         print("Cloning data from https://github.com/pcm-dpc/COVID-19.git (it takes several minutes) ...")
 
         g = git.cmd.Git('./')
-        g.clone('https://github.com/pcm-dpc/COVID-19.git')
+        g.clone('--depth=1', 'https://github.com/pcm-dpc/COVID-19.git')
 
         print("Cloning done!")
 
