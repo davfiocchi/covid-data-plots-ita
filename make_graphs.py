@@ -50,7 +50,7 @@ def plot_events(dates, ax):
     return
 
 
-def plot_measure(measure, dates, title, is_variation=False):
+def plot_measure(measure, dates, title, is_variation=False, notes=None):
     """
     Plot single measure
     
@@ -70,6 +70,10 @@ def plot_measure(measure, dates, title, is_variation=False):
 
     # plot events
     plot_events(dates, ax)
+
+    # plot notes, if any
+    if notes:
+        plt.figtext(0.5, 0.03, notes, fontsize=9, horizontalalignment='center', wrap=True)
 
     # x axis properties
     dates_step = math.floor(len(dates)/(N_TICKS-1))
@@ -98,6 +102,7 @@ def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, s
     variation_healed = np.diff(np.array(healed))
     variation_deaths = np.diff(np.array(deaths))
     variation_n_tests = np.diff(np.array(n_tests))
+    variation_n_tests = np.where(variation_n_tests==0, 1, variation_n_tests)
 
     plot_measure(variation_hospitalized_with_sympthoms, dates[1:], 'Variazione ricoverati con sintomi - ' + area_name, is_variation=True)
     plot_measure(variation_intensive_care_unit, dates[1:], 'Variazione terapia intensiva - ' + area_name, is_variation=True)
@@ -136,7 +141,11 @@ def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, s
 
                 break
     
-    plot_measure(ratio_positive_over_tests, dates[1+n_days_to_wait_before_test_result:], 'Rapporto positivi/numero tamponi - ' + area_name, is_variation=True)
+    # set the maximum ratio to +-1
+    ratio_positive_over_tests = np.where(ratio_positive_over_tests>1, 1, ratio_positive_over_tests)
+    ratio_positive_over_tests = np.where(ratio_positive_over_tests<-1, -1, ratio_positive_over_tests)
+
+    plot_measure(ratio_positive_over_tests, dates[1+n_days_to_wait_before_test_result:], 'Rapporto positivi/numero tamponi - ' + area_name, is_variation=True, notes='Il rapporto è stato calcolato assumendo che il risultato del tampone arrivasse '+ str(n_days_to_wait_before_test_result) +' giorno/i dopo il test. \nL\'assunzione è forte e poco affidabile, serve solo per mostrare un grafico dell\'andamento')
 
     return
 
