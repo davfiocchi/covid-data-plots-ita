@@ -85,7 +85,7 @@ def plot_measure(measure, dates, title, is_variation=False):
     return
 
 
-def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, staying_at_home, positives, healed, deaths, area_name):
+def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, staying_at_home, positives, healed, deaths, n_tests, area_name):
     """
     Plot all measures
     
@@ -97,13 +97,7 @@ def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, s
     variation_positives = np.diff(np.array(positives))
     variation_healed = np.diff(np.array(healed))
     variation_deaths = np.diff(np.array(deaths))
-    
-    # print graph
-    # plot_measure(hospitalized_with_sympthoms, dates, 'Ricoverati con sintomi')
-    # plot_measure(intensive_care_unit, dates, 'Terapia intensiva')
-    # plot_measure(staying_at_home, dates, 'Isolamento domiciliare')
-    # plot_measure(positives, dates, 'Positivi')
-    # plot_measure(healed, dates, 'Guariti')
+    variation_n_tests = np.diff(np.array(n_tests))
 
     plot_measure(variation_hospitalized_with_sympthoms, dates[1:], 'Variazione ricoverati con sintomi - ' + area_name, is_variation=True)
     plot_measure(variation_intensive_care_unit, dates[1:], 'Variazione terapia intensiva - ' + area_name, is_variation=True)
@@ -111,6 +105,38 @@ def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, s
     plot_measure(variation_positives, dates[1:], 'Variazione positivi - ' + area_name, is_variation=True)
     plot_measure(variation_healed, dates[1:], 'Variazione guariti - ' + area_name, is_variation=True)
     plot_measure(variation_deaths, dates[1:], 'Variazione deceduti - ' + area_name, is_variation=True)
+
+    # we assume that one day after the test the result is ready
+    # this is needed to best match the number of tests with the number of positives (but it is not reliable)
+    n_days_to_wait_before_test_result = 1
+    ratio_positive_over_tests = variation_positives[n_days_to_wait_before_test_result:]/variation_n_tests[:-n_days_to_wait_before_test_result]
+
+    # check if the assumption leads to impossible result (ratio>1)
+    if np.any(ratio_positive_over_tests > 1):
+
+        print(n_days_to_wait_before_test_result, "day(s) to wait before test result leads to an impossible ratio. Trying with higher number of days...")
+
+        # try every number of days up to 5
+        for n_days_to_wait_before_test_result in range(2, 6):
+            print("Evaluating", n_days_to_wait_before_test_result, "...")
+            ratio_positive_over_tests = variation_positives[n_days_to_wait_before_test_result:]/variation_n_tests[:-n_days_to_wait_before_test_result]
+
+            if np.any(ratio_positive_over_tests > 1) and n_days_to_wait_before_test_result<5 :
+                print("Impossible ratio, continue")
+                continue
+
+            elif np.any(ratio_positive_over_tests > 1):
+                print("Impossible ratio. Any number of days leads to impossible result. Fallback to 1 number of days")
+                n_days_to_wait_before_test_result = 1
+                ratio_positive_over_tests = variation_positives[n_days_to_wait_before_test_result:]/variation_n_tests[:-n_days_to_wait_before_test_result]
+                break
+
+            else:
+                print("Possible number of days found")
+
+                break
+    
+    plot_measure(ratio_positive_over_tests, dates[1+n_days_to_wait_before_test_result:], 'Rapporto positivi/numero tamponi - ' + area_name, is_variation=True)
 
     return
 
@@ -133,6 +159,7 @@ def plot_national_data():
         positives = []
         healed = []
         deaths = []
+        n_tests = []
 
         for daily_data in national_data:
             hospitalized_with_sympthoms.append(daily_data['ricoverati_con_sintomi'])
@@ -141,6 +168,7 @@ def plot_national_data():
             positives.append(daily_data['totale_positivi'])
             healed.append(daily_data['dimessi_guariti'])
             deaths.append(daily_data['deceduti'])
+            n_tests.append(daily_data['tamponi'])
 
             day = datetime.fromisoformat(daily_data['data'])
             dates.append(day.strftime("%b %d"))
@@ -152,6 +180,7 @@ def plot_national_data():
                           positives=positives,
                           healed=healed,
                           deaths=deaths,
+                          n_tests=n_tests,
                           area_name='Italia')
     
     return
@@ -173,7 +202,8 @@ def plot_regional_data(region_list):
             "staying_at_home": [],
             "positives": [],
             "healed": [],
-            "deaths": []
+            "deaths": [],
+            "n_tests": []
         }
     
     # load data
@@ -191,6 +221,7 @@ def plot_regional_data(region_list):
                 region_dict[region]['positives'].append(daily_data['totale_positivi'])
                 region_dict[region]['healed'].append(daily_data['dimessi_guariti'])
                 region_dict[region]['deaths'].append(daily_data['deceduti'])
+                region_dict[region]['n_tests'].append(daily_data['tamponi'])
 
                 day = datetime.fromisoformat(daily_data['data'])
                 region_dict[region]['dates'].append(day.strftime("%b %d"))
@@ -209,6 +240,7 @@ def plot_regional_data(region_list):
                             positives=region_dict[region]['positives'],
                             healed=region_dict[region]['healed'],
                             deaths=region_dict[region]['deaths'],
+                            n_tests=region_dict[region]['n_tests'],
                             area_name=region)
     
     return
