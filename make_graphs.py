@@ -46,6 +46,8 @@ def plot_events(dates, ax):
     ax.axvline(dates.index(date(2020, 9, 14).strftime("%b %d")), label='Riapertura scuole', linestyle='--', color='g')
     ax.axvline(dates.index(date(2020, 10, 24).strftime("%b %d")), label='DPCM 24 ottobre', linestyle='--', color='c')
     ax.axvline(dates.index(date(2020, 11, 3).strftime("%b %d")), label='DPCM 3 novembre', linestyle='--', color='m')
+    ax.axvline(dates.index(date(2020, 12, 21).strftime("%b %d")), label='Blocco regioni', linestyle='--', color='b')
+    ax.axvline(dates.index(date(2020, 12, 25).strftime("%b %d")), label='Natale', linestyle='--', color='g')
 
     return
 
