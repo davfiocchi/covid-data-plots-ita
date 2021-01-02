@@ -3,3 +3,5 @@
 *.py[cod]
 
 COVID-19/
+
+env/
