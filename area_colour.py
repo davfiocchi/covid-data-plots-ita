@@ -1,15 +1,25 @@
 
 import csv
 from datetime import datetime, timedelta
+from enum import Enum
+
+ALL_AREAS = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Lombardia", "Piemonte", "Provincia Autonoma di Bolzano", "Toscana", "Valle d'Aosta", "Emilia Romagna",  "Friuli Venezia Giulia", "Lazio", "Liguria", "Marche", "Molise", "Provincia autonoma di Trento", "Puglia", "Sardegna", "Sicilia", "Umbria", "Veneto"]
+
+
+class AreaColour(Enum):
+    RED = 1
+    ORANGE = 2
+    YELLOW = 3
+    NONE = 4
 
 
 class ColourPeriod:
     """
     Colour period class
 
-    This class contains information about regions colour for a specific period of time
+    This class contains information about areas colour for a specific period of time
     """
-    def __init__(self, start_date, end_date=datetime.now(), red_regions=[], orange_regions=[], yellow_regions=[]):
+    def __init__(self, start_date, end_date=datetime.now(), red_areas=[], orange_areas=[], yellow_areas=[]):
         """
         Class constructor
 
@@ -19,25 +29,25 @@ class ColourPeriod:
             Start date for the colour period
         end_date : Date
             End date for the colour period (default to now)
-        red_regions : list of str
-            List of all the region names maked as red for the period
-        orange_regions : list of str
-            List of all the region names maked as orange for the period
-        yellow_regions : list of str
-            List of all the region names maked as yellow for the period
+        red_areas : list of str
+            List of all the area names maked as red for the period
+        orange_areas : list of str
+            List of all the area names maked as orange for the period
+        yellow_areas : list of str
+            List of all the area names maked as yellow for the period
         """
         self.start_date = start_date
         self.end_date = end_date
-        self.red_regions = red_regions
-        self.orange_regions = orange_regions
-        self.yellow_regions = yellow_regions
+        self.red_areas = red_areas
+        self.orange_areas = orange_areas
+        self.yellow_areas = yellow_areas
 
     def __str__(self):
         col_period_string = "Start date: " + self.start_date.isoformat() + "\n"
         col_period_string += "End date: " + self.end_date.isoformat() + "\n"
-        col_period_string += "Red regions: " + str(self.red_regions) + "\n"
-        col_period_string += "Orange regions: " + str(self.orange_regions) + "\n"
-        col_period_string += "Yellow regions: " + str(self.yellow_regions) + "\n"
+        col_period_string += "Red areas: " + str(self.red_areas) + "\n"
+        col_period_string += "Orange areas: " + str(self.orange_areas) + "\n"
+        col_period_string += "Yellow areas: " + str(self.yellow_areas) + "\n"
         
         return col_period_string
 
@@ -54,50 +64,144 @@ class ColourPeriod:
     
     def contains_duplicates(self):
         """
-        Check if more than one colour is assigned to a single region
+        Check if more than one colour is assigned to a single area
 
         Returns
         ----------
-        True if more than one colour is assigned to a region
+        True if more than one colour is assigned to a area
         False otherwise 
         """
-        all_regions = self.red_regions + self.orange_regions + self.yellow_regions
+        all_areas = self.red_areas + self.orange_areas + self.yellow_areas
 
-        if len(all_regions) == len(set(all_regions)):
+        if len(all_areas) == len(set(all_areas)):
             return False
         else:
-            print(len(all_regions))
-            print(len(set(all_regions)))
-            print(all_regions)
-            print(set(all_regions))
+            print(len(all_areas))
+            print(len(set(all_areas)))
+            print(all_areas)
+            print(set(all_areas))
             return True
 
-    def every_region_has_colour_assigned(self):
+    def every_area_has_colour_assigned(self):
         """
-        Check if all the regions have been assigned to a colour
+        Check if all the areas have been assigned to a colour
 
         Returns
         ----------
-        True if all the region has been assigned to a colour
+        True if all the area has been assigned to a colour
         False otherwise 
         """
-        all_regions = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Lombardia", "Piemonte", "Provincia Autonoma di Bolzano", "Toscana", "Valle d'Aosta", "Emilia Romagna",  "Friuli Venezia Giulia", "Lazio", "Liguria", "Marche", "Molise", "Provincia autonoma di Trento", "Puglia", "Sardegna", "Sicilia", "Umbria", "Veneto"]
+        areas_assigned_to_colour = self.red_areas + self.orange_areas + self.yellow_areas
 
-        regions_assigned_to_colour = self.red_regions + self.orange_regions + self.yellow_regions
-
-        for region in all_regions:
-            if region not in regions_assigned_to_colour:
-                print("No colour has been assigned to " + region)
+        for area in ALL_AREAS:
+            if area not in areas_assigned_to_colour:
+                print("No colour has been assigned to " + area)
                 return False
 
         return True
+    
+    def is_date_before_start(self, date):
+        """
+        Check if the date is before start date of the period
 
+        Parameters
+        ----------
+        date : Date
+            Input date to check
+
+        Returns
+        ----------
+        True if the date is before start date
+        False otherwise 
+        """
+        return date < self.start_date
+
+    def is_date_after_end(self, date):
+        """
+        Check if the date is after end date of the period
+
+        Parameters
+        ----------
+        date : Date
+            Input date to check
+
+        Returns
+        ----------
+        True if the date is after end date
+        False otherwise 
+        """
+        return date > self.end_date
+
+    def get_colour(self, date, area=None):
+        """
+        Get the colour for the given area for this period.
+        If the area is not provided, the percentage of each colour is provided
+
+        Parameters
+        ----------
+        date : Date
+            Date (needed to check if the date is valid)
+        area : str
+            Desired area (default to all)
+
+        Returns
+        ----------
+        AreaColour
+            Area colour if the area is provided 
+            If the date is not valid or the area hasn't been found then AreaColour.NONE is returned
+        obj
+            If the area is not provided the following object is returned
+            {
+                AreaColour.RED = <value_r>,
+                AreaColour.ORANGE = <value_o>,
+                AreaColour.YELLOW = <value_y>,
+                AreaColour.NONE = <value_n>,
+            }
+            Where each value is a number between 0 and 1
+        """
+        while True:
+
+            # date check
+            if self.is_date_before_start(date) or self.is_date_after_end(date):
+                break
+
+            # all data
+            if area is None:
+                return {
+                    AreaColour.RED: len(self.red_areas)/len(ALL_AREAS),
+                    AreaColour.ORANGE: len(self.orange_areas)/len(ALL_AREAS),
+                    AreaColour.YELLOW: len(self.yellow_areas)/len(ALL_AREAS),
+                    AreaColour.NONE: 0,
+                }
+
+            # specific area data
+            else:
+                if area in self.red_areas:
+                    return AreaColour.RED
+                elif area in self.orange_areas:
+                    return AreaColour.ORANGE
+                elif area in self.yellow_areas:
+                    return AreaColour.YELLOW
+                else:
+                    print(f"The area {area} hasn't been found")
+                    break
+        
+        # return with errors
+        if area is None:
+            return {
+                AreaColour.RED: 0,
+                AreaColour.ORANGE: 0,
+                AreaColour.YELLOW: 0,
+                AreaColour.NONE: 1,
+            }
+        else:
+            return AreaColour.NONE
 
 def load_data():
     """
     Load data from file
 
-    Function to convert the file content to Python structures
+    Internal function to convert the file content to Python structures
 
     Returns
     -------
@@ -106,7 +210,7 @@ def load_data():
     """
     loaded_data = []
 
-    with open('region_colour.csv') as csv_file:
+    with open('area_colour.csv') as csv_file:
         file_content = csv.reader(csv_file, delimiter=',')
 
         for row_index, row in enumerate(file_content):
@@ -114,17 +218,17 @@ def load_data():
             if row_index > 0:
 
                 # retrieve data from row
-                red_regions = list(filter(None, row[1].split(', ')))
-                orange_regions = list(filter(None, row[2].split(', ')))
-                yellow_regions = list(filter(None, row[3].split(', ')))
+                red_areas = list(filter(None, row[1].split(', ')))
+                orange_areas = list(filter(None, row[2].split(', ')))
+                yellow_areas = list(filter(None, row[3].split(', ')))
 
-                start_date = datetime.fromisoformat(row[0])
+                start_date = datetime.fromisoformat(row[0]).date()
 
                 # define a new colour period
                 loaded_data.append(ColourPeriod(start_date=start_date,
-                                               red_regions=red_regions,
-                                               orange_regions=orange_regions,
-                                               yellow_regions=yellow_regions))
+                                               red_areas=red_areas,
+                                               orange_areas=orange_areas,
+                                               yellow_areas=yellow_areas))
                 
                 # update end date for previous colour period
                 if len(loaded_data) > 1:
@@ -139,24 +243,24 @@ def validate_data():
     
     Checks that the file content is consistent and does not contain errors (such as duplicates, ...).
 
-    This is needed since the file that contains the colour information of the region has been created and updated manually, thus an automated check is needed.
-    Once the region colour could be retrieved from the Civil Protection Department repository, then this function might be helpful to find any errors in their files.
+    This is needed since the file that contains the colour information of the area has been created and updated manually, thus an automated check is needed.
+    Once the area colour could be retrieved from the Civil Protection Department repository, then this function might be helpful to find any errors in their files.
     Hopefully the automatic retrieval from Civil Protection Department repository would be available soon!
     """
-    region_colour_data = load_data()
+    area_colour_data = load_data()
 
     all_data_is_ok = True
 
-    for period in region_colour_data:
+    for period in area_colour_data:
 
         there_is_some_error = False
 
         if period.contains_duplicates():
-            print("The following colour period has more than one colour assigned to a region")
+            print("The following colour period has more than one colour assigned to a area")
             there_is_some_error = True
 
-        if not period.every_region_has_colour_assigned():
-            print("Not all the region has a colour assigned in the following colour period")
+        if not period.every_area_has_colour_assigned():
+            print("Not all the area has a colour assigned in the following colour period")
             there_is_some_error = True
         
         if there_is_some_error:
@@ -169,6 +273,35 @@ def validate_data():
     return True
 
 
+def get_area_colour(dates, area=None):
+    """
+    Get area colour for all the input dates 
+    
+    Parameters
+    ----------
+    dates : list of Date
+        List of dates for which the area colour is requested
+    area : str
+        Desired area (default to all)
+
+    Returns
+    ----------
+    list
+        List of AreaColours or obj if all the areas have been requested (return value of get_colour function for each ColourPeriod class)
+    """
+    colour_data = load_data()
+    colour_data_index = 0
+
+    area_colours = []
+
+    for date in dates:
+
+        if colour_data[colour_data_index].is_date_after_end(date) and colour_data_index < len(colour_data):
+            colour_data_index += 1
+
+        area_colours.append(colour_data[colour_data_index].get_colour(date, area))
+
+    return area_colours
 
 if __name__ == "__main__":
     validate_data()

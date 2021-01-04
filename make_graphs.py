@@ -11,11 +11,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
+from area_colour import get_area_colour, AreaColour
+
 N_TICKS = 10
 n_figures = 0
 
 
-def plot_trend(measure, dates, ax):
+def plot_trend(measure, dates, area_colours, ax):
     """
     Plot trend
     
@@ -53,7 +55,7 @@ def plot_events(dates, ax):
     return
 
 
-def plot_measure(measure, dates, title, is_variation=False, notes=None):
+def plot_measure(measure, dates, title, area_colours=[], is_variation=False, notes=None):
     """
     Plot single measure
     
@@ -72,7 +74,7 @@ def plot_measure(measure, dates, title, is_variation=False, notes=None):
 
     # plot trend
     if is_variation:
-        plot_trend(measure, dates, ax)
+        plot_trend(measure, dates, area_colours, ax)
 
     # plot events
     plot_events(dates, ax)
@@ -95,7 +97,7 @@ def plot_measure(measure, dates, title, is_variation=False, notes=None):
     return
 
 
-def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, staying_at_home, positives, healed, deaths, n_tests, area_name):
+def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, staying_at_home, positives, healed, deaths, n_tests, area_colours, area_name):
     """
     Plot all measures
     
@@ -110,12 +112,12 @@ def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, s
     variation_n_tests = np.diff(np.array(n_tests))
     variation_n_tests = np.where(variation_n_tests==0, 1, variation_n_tests)
 
-    plot_measure(variation_hospitalized_with_sympthoms, dates[1:], 'Variazione ricoverati con sintomi - ' + area_name, is_variation=True)
-    plot_measure(variation_intensive_care_unit, dates[1:], 'Variazione terapia intensiva - ' + area_name, is_variation=True)
-    plot_measure(variation_staying_at_home, dates[1:], 'Variazione isolamento domiciliare - ' + area_name, is_variation=True)
-    plot_measure(variation_positives, dates[1:], 'Variazione positivi - ' + area_name, is_variation=True)
-    plot_measure(variation_healed, dates[1:], 'Variazione guariti - ' + area_name, is_variation=True)
-    plot_measure(variation_deaths, dates[1:], 'Variazione deceduti - ' + area_name, is_variation=True)
+    plot_measure(variation_hospitalized_with_sympthoms, dates[1:], 'Variazione ricoverati con sintomi - ' + area_name, area_colours[1:], is_variation=True)
+    plot_measure(variation_intensive_care_unit, dates[1:], 'Variazione terapia intensiva - ' + area_name, area_colours[1:], is_variation=True)
+    plot_measure(variation_staying_at_home, dates[1:], 'Variazione isolamento domiciliare - ' + area_name, area_colours[1:], is_variation=True)
+    plot_measure(variation_positives, dates[1:], 'Variazione positivi - ' + area_name, area_colours[1:], is_variation=True)
+    plot_measure(variation_healed, dates[1:], 'Variazione guariti - ' + area_name, area_colours[1:], is_variation=True)
+    plot_measure(variation_deaths, dates[1:], 'Variazione deceduti - ' + area_name, area_colours[1:], is_variation=True)
 
     # we assume that one day after the test the result is ready
     # this is needed to best match the number of tests with the number of positives (but it is not reliable)
@@ -151,7 +153,7 @@ def plot_all_measures(dates, hospitalized_with_sympthoms, intensive_care_unit, s
     ratio_positive_over_tests = np.where(ratio_positive_over_tests>1, 1, ratio_positive_over_tests)
     ratio_positive_over_tests = np.where(ratio_positive_over_tests<-1, -1, ratio_positive_over_tests)
 
-    plot_measure(ratio_positive_over_tests, dates[1+n_days_to_wait_before_test_result:], 'Rapporto positivi/numero tamponi - ' + area_name, is_variation=True, notes='Il rapporto è stato calcolato assumendo che il risultato del tampone arrivasse '+ str(n_days_to_wait_before_test_result) +' giorno/i dopo il test. \nL\'assunzione è forte e poco affidabile, serve solo per mostrare un grafico dell\'andamento')
+    plot_measure(ratio_positive_over_tests, dates[1+n_days_to_wait_before_test_result:], 'Rapporto positivi/numero tamponi - ' + area_name, area_colours[1:], is_variation=True, notes='Il rapporto è stato calcolato assumendo che il risultato del tampone arrivasse '+ str(n_days_to_wait_before_test_result) +' giorno/i dopo il test. \nL\'assunzione è forte e poco affidabile, serve solo per mostrare un grafico dell\'andamento')
 
     return
 
@@ -187,6 +189,8 @@ def plot_national_data():
 
             dates.append(datetime.fromisoformat(daily_data['data']).date())
         
+        area_colours = get_area_colour(dates)
+
         plot_all_measures(dates=dates,
                           hospitalized_with_sympthoms=hospitalized_with_sympthoms, 
                           intensive_care_unit=intensive_care_unit,
@@ -195,6 +199,7 @@ def plot_national_data():
                           healed=healed,
                           deaths=deaths,
                           n_tests=n_tests,
+                          area_colours=area_colours,
                           area_name='Italia')
     
     return
@@ -246,6 +251,8 @@ def plot_regional_data(region_list):
                 print("Invalid region: ", region)
                 continue
 
+            area_colours = get_area_colour(region_dict[region]['dates'], region)
+
             plot_all_measures(dates=region_dict[region]['dates'],
                             hospitalized_with_sympthoms=region_dict[region]['hospitalized_with_sympthoms'],
                             intensive_care_unit=region_dict[region]['intensive_care_unit'],
@@ -254,6 +261,7 @@ def plot_regional_data(region_list):
                             healed=region_dict[region]['healed'],
                             deaths=region_dict[region]['deaths'],
                             n_tests=region_dict[region]['n_tests'],
+                            area_colours=area_colours,
                             area_name=region)
     
     return
