@@ -14,6 +14,7 @@ import numpy as np
 N_TICKS = 10
 n_figures = 0
 
+
 def plot_trend(measure, dates, ax):
     """
     Plot trend
@@ -62,6 +63,9 @@ def plot_measure(measure, dates, title, is_variation=False, notes=None):
 
     fig = plt.figure(n_figures)
     ax = fig.subplots()
+
+    # convert date into suitable string format
+    dates = [day.strftime("%b %d") for day in dates]
 
     # plot measure
     ax.plot(dates, measure, marker='o', linestyle='None')
@@ -181,8 +185,7 @@ def plot_national_data():
             deaths.append(daily_data['deceduti'])
             n_tests.append(daily_data['tamponi'])
 
-            day = datetime.fromisoformat(daily_data['data'])
-            dates.append(day.strftime("%b %d"))
+            dates.append(datetime.fromisoformat(daily_data['data']).date())
         
         plot_all_measures(dates=dates,
                           hospitalized_with_sympthoms=hospitalized_with_sympthoms, 
@@ -234,8 +237,7 @@ def plot_regional_data(region_list):
                 region_dict[region]['deaths'].append(daily_data['deceduti'])
                 region_dict[region]['n_tests'].append(daily_data['tamponi'])
 
-                day = datetime.fromisoformat(daily_data['data'])
-                region_dict[region]['dates'].append(day.strftime("%b %d"))
+                region_dict[region]['dates'].append(datetime.fromisoformat(daily_data['data']).date())
         
         
         for region in region_dict.keys():
