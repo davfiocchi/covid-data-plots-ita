@@ -3,7 +3,7 @@ import csv
 from datetime import datetime, timedelta
 from enum import Enum
 
-ALL_AREAS = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Lombardia", "Piemonte", "Provincia Autonoma di Bolzano", "Toscana", "Valle d'Aosta", "Emilia Romagna",  "Friuli Venezia Giulia", "Lazio", "Liguria", "Marche", "Molise", "Provincia autonoma di Trento", "Puglia", "Sardegna", "Sicilia", "Umbria", "Veneto"]
+ALL_AREAS = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Lombardia", "Piemonte", "P.A. Bolzano", "Toscana", "Valle d'Aosta", "Emilia-Romagna",  "Friuli Venezia Giulia", "Lazio", "Liguria", "Marche", "Molise", "P.A. Trento", "Puglia", "Sardegna", "Sicilia", "Umbria", "Veneto"]
 
 
 class AreaColour(Enum):
