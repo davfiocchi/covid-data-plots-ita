@@ -19,7 +19,7 @@ class ColourPeriod:
 
     This class contains information about areas colour for a specific period of time
     """
-    def __init__(self, start_date, end_date=datetime.now(), red_areas=[], orange_areas=[], yellow_areas=[]):
+    def __init__(self, start_date, end_date=datetime.now().date(), red_areas=[], orange_areas=[], yellow_areas=[]):
         """
         Class constructor
 

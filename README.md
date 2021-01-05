@@ -20,4 +20,3 @@ python ./make_graphs.py [<region1>] ... [<region N>]
 
 ### TODO
 * plot events based on province
-* color area under trend based on region zone colour (yellow, orange, red)

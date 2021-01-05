@@ -25,6 +25,8 @@ def plot_trend(measure, dates, area_colours, ax):
     """
     trend = []
     trend_dates = []
+    trend_index = 0
+    area_colours_data = np.zeros((AreaColour.NONE.value+1, len(dates)-13))
 
     for index, day in enumerate(dates):
         # avoid first and last 7 days due to insufficient data
@@ -35,7 +37,40 @@ def plot_trend(measure, dates, area_colours, ax):
         trend.append(predict(7))
         trend_dates.append(day)
 
+        if type(area_colours[index]) is AreaColour:
+            # Region plot:
+            # The area underneath the trend shall be filled with the colour assigned to the region for that day
+            if area_colours[index] is AreaColour.RED:
+                area_colours_data[AreaColour.RED.value][trend_index] = trend[trend_index]
+                area_colours_data[AreaColour.ORANGE.value][trend_index] = trend[trend_index]
+                area_colours_data[AreaColour.YELLOW.value][trend_index] = trend[trend_index]
+                area_colours_data[AreaColour.NONE.value][trend_index] = trend[trend_index]
+            elif area_colours[index] is AreaColour.ORANGE:
+                area_colours_data[AreaColour.ORANGE.value][trend_index] = trend[trend_index]
+                area_colours_data[AreaColour.YELLOW.value][trend_index] = trend[trend_index]
+                area_colours_data[AreaColour.NONE.value][trend_index] = trend[trend_index]
+            elif area_colours[index] is AreaColour.YELLOW:
+                area_colours_data[AreaColour.YELLOW.value][trend_index] = trend[trend_index]
+                area_colours_data[AreaColour.NONE.value][trend_index] = trend[trend_index]
+            else:
+                area_colours_data[AreaColour.NONE.value][trend_index] = trend[trend_index]
+        else:
+            # National plot:
+            # The area underneath the trend shall be coloured with every colour in proportion to the number of regions assigned to that colour
+            # Example: if half of the regions are marked as red on a specifc day, then half of the area underneath the trend will be filled with red on that day
+            area_colours_data[AreaColour.RED.value][trend_index] = trend[trend_index]*area_colours[index][AreaColour.RED]
+            area_colours_data[AreaColour.ORANGE.value][trend_index] = trend[trend_index]*area_colours[index][AreaColour.ORANGE] + area_colours_data[AreaColour.RED.value][trend_index]
+            area_colours_data[AreaColour.YELLOW.value][trend_index] = trend[trend_index]*area_colours[index][AreaColour.YELLOW] + area_colours_data[AreaColour.ORANGE.value][trend_index]
+            area_colours_data[AreaColour.NONE.value][trend_index] = trend[trend_index]*area_colours[index][AreaColour.NONE] + area_colours_data[AreaColour.YELLOW.value][trend_index]
+        
+        trend_index += 1
+
     ax.plot(trend_dates, trend, label='Andamento', color='r')
+
+    ax.fill_between(trend_dates, area_colours_data[AreaColour.RED.value], 0, color='red', alpha=0.5)
+    ax.fill_between(trend_dates, area_colours_data[AreaColour.ORANGE.value], area_colours_data[AreaColour.RED.value], color='orange', alpha=0.5)
+    ax.fill_between(trend_dates, area_colours_data[AreaColour.YELLOW.value], area_colours_data[AreaColour.ORANGE.value], color='yellow', alpha=0.5)
+    ax.fill_between(trend_dates, area_colours_data[AreaColour.NONE.value], area_colours_data[AreaColour.YELLOW.value], color='white')
 
     return
 
