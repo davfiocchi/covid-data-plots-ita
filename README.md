@@ -5,7 +5,7 @@ This repository contains a simple Python script to plot Italian COVID-19 data.
 The data is provided by Civil Protection Department (Dipartimento Protezione Civile) and can be found [here](https://github.com/pcm-dpc/COVID-19)
 
 I made this script for me to have a better understanding of what is the COVID situation like in Italy.  
-I hope that it might be useful also for others! 
+I hope that others will find it useful as well!
 
 ### How do I get set up?
 
