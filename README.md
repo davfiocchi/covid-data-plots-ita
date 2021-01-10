@@ -19,4 +19,5 @@ python ./make_graphs.py [<region1>] ... [<region N>]
 ```
 
 ### TODO
-* plot events based on province
+* automatic update of region colour data
+* vaccine information display (not yet available on Civil Protection Department repo)
