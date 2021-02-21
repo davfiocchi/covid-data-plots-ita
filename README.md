@@ -34,4 +34,5 @@ python ./make_graphs.py [<region1>] ... [<region N>]
 
 ### TODO
 * automatic update of region colour data
+* if more than one region is provided, display each measure them in a single plot (so you can compare region data easily)
 * vaccine information display (not yet available on Civil Protection Department repo)
