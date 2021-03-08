@@ -16,6 +16,8 @@ from area_colour import get_area_colour, AreaColour
 N_TICKS = 10
 n_figures = 0
 
+DATE_STRING_FORMAT = "%d %b '%y"
+
 
 def plot_trend(measure, dates, area_colours, ax):
     """
@@ -81,11 +83,11 @@ def plot_events(dates, ax):
     
     Plot events as vertical lines
     """
-    ax.axvline(dates.index(date(2020, 9, 14).strftime("%b %d")), label='Riapertura scuole', linestyle='--', color='g')
-    ax.axvline(dates.index(date(2020, 10, 24).strftime("%b %d")), label='DPCM 24 ottobre', linestyle='--', color='c')
-    ax.axvline(dates.index(date(2020, 11, 3).strftime("%b %d")), label='DPCM 3 novembre', linestyle='--', color='m')
-    ax.axvline(dates.index(date(2020, 12, 21).strftime("%b %d")), label='Blocco regioni', linestyle='--', color='b')
-    ax.axvline(dates.index(date(2020, 12, 25).strftime("%b %d")), label='Natale', linestyle='--', color='g')
+    ax.axvline(dates.index(date(2020, 9, 14).strftime(DATE_STRING_FORMAT)), label='Riapertura scuole', linestyle='--', color='g')
+    ax.axvline(dates.index(date(2020, 10, 24).strftime(DATE_STRING_FORMAT)), label='DPCM 24 ottobre', linestyle='--', color='c')
+    ax.axvline(dates.index(date(2020, 11, 3).strftime(DATE_STRING_FORMAT)), label='DPCM 3 novembre', linestyle='--', color='m')
+    ax.axvline(dates.index(date(2020, 12, 21).strftime(DATE_STRING_FORMAT)), label='Blocco regioni', linestyle='--', color='b')
+    ax.axvline(dates.index(date(2020, 12, 25).strftime(DATE_STRING_FORMAT)), label='Natale', linestyle='--', color='g')
 
     return
 
@@ -102,7 +104,7 @@ def plot_measure(measure, dates, title, area_colours=[], is_variation=False, not
     ax = fig.subplots()
 
     # convert date into suitable string format
-    dates = [day.strftime("%b %d") for day in dates]
+    dates = [day.strftime(DATE_STRING_FORMAT) for day in dates]
 
     # plot measure
     ax.plot(dates, measure, marker='o', linestyle='None')
