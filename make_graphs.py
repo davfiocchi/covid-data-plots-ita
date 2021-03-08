@@ -54,7 +54,7 @@ def plot_trend(measure, dates, area_colours, ax):
             elif area_colours[index] is AreaColour.YELLOW:
                 area_colours_data[AreaColour.YELLOW.value][trend_index] = trend[trend_index]
                 area_colours_data[AreaColour.NONE.value][trend_index] = trend[trend_index]
-            else:
+            elif area_colours[index] is AreaColour.WHITE or area_colours[index] is AreaColour.NONE:
                 area_colours_data[AreaColour.NONE.value][trend_index] = trend[trend_index]
         else:
             # National plot:

@@ -10,7 +10,8 @@ class AreaColour(Enum):
     RED = 1
     ORANGE = 2
     YELLOW = 3
-    NONE = 4
+    WHITE = 4
+    NONE = 5
 
 
 class ColourPeriod:
@@ -19,7 +20,7 @@ class ColourPeriod:
 
     This class contains information about areas colour for a specific period of time
     """
-    def __init__(self, start_date, end_date=datetime.now().date(), red_areas=[], orange_areas=[], yellow_areas=[]):
+    def __init__(self, start_date, end_date=datetime.now().date(), red_areas=[], orange_areas=[], yellow_areas=[], white_areas=[]):
         """
         Class constructor
 
@@ -35,12 +36,15 @@ class ColourPeriod:
             List of all the area names maked as orange for the period
         yellow_areas : list of str
             List of all the area names maked as yellow for the period
+        white_areas : list of str
+            List of all the area names maked as white for the period
         """
         self.start_date = start_date
         self.end_date = end_date
         self.red_areas = red_areas
         self.orange_areas = orange_areas
         self.yellow_areas = yellow_areas
+        self.white_areas = white_areas
 
     def __str__(self):
         col_period_string = "Start date: " + self.start_date.isoformat() + "\n"
@@ -48,6 +52,7 @@ class ColourPeriod:
         col_period_string += "Red areas: " + str(self.red_areas) + "\n"
         col_period_string += "Orange areas: " + str(self.orange_areas) + "\n"
         col_period_string += "Yellow areas: " + str(self.yellow_areas) + "\n"
+        col_period_string += "White areas: " + str(self.white_areas) + "\n"
         
         return col_period_string
 
@@ -71,7 +76,7 @@ class ColourPeriod:
         True if more than one colour is assigned to a area
         False otherwise 
         """
-        all_areas = self.red_areas + self.orange_areas + self.yellow_areas
+        all_areas = self.red_areas + self.orange_areas + self.yellow_areas + self.white_areas
 
         if len(all_areas) == len(set(all_areas)):
             return False
@@ -91,7 +96,7 @@ class ColourPeriod:
         True if all the area has been assigned to a colour
         False otherwise 
         """
-        areas_assigned_to_colour = self.red_areas + self.orange_areas + self.yellow_areas
+        areas_assigned_to_colour = self.red_areas + self.orange_areas + self.yellow_areas + self.white_areas
 
         for area in ALL_AREAS:
             if area not in areas_assigned_to_colour:
@@ -155,6 +160,7 @@ class ColourPeriod:
                 AreaColour.RED = <value_r>,
                 AreaColour.ORANGE = <value_o>,
                 AreaColour.YELLOW = <value_y>,
+                AreaColour.WHITE = <value_w>,
                 AreaColour.NONE = <value_n>,
             }
             Where each value is a number between 0 and 1
@@ -171,6 +177,7 @@ class ColourPeriod:
                     AreaColour.RED: len(self.red_areas)/len(ALL_AREAS),
                     AreaColour.ORANGE: len(self.orange_areas)/len(ALL_AREAS),
                     AreaColour.YELLOW: len(self.yellow_areas)/len(ALL_AREAS),
+                    AreaColour.WHITE: len(self.white_areas)/len(ALL_AREAS),
                     AreaColour.NONE: 0,
                 }
 
@@ -182,6 +189,8 @@ class ColourPeriod:
                     return AreaColour.ORANGE
                 elif area in self.yellow_areas:
                     return AreaColour.YELLOW
+                elif area in self.white_areas:
+                    return AreaColour.WHITE
                 else:
                     print(f"The area {area} hasn't been found")
                     break
@@ -192,6 +201,7 @@ class ColourPeriod:
                 AreaColour.RED: 0,
                 AreaColour.ORANGE: 0,
                 AreaColour.YELLOW: 0,
+                AreaColour.WHITE: 0,
                 AreaColour.NONE: 1,
             }
         else:
@@ -221,6 +231,7 @@ def load_data():
                 red_areas = list(filter(None, row[1].split(', ')))
                 orange_areas = list(filter(None, row[2].split(', ')))
                 yellow_areas = list(filter(None, row[3].split(', ')))
+                white_areas = list(filter(None, row[4].split(', ')))
 
                 start_date = datetime.fromisoformat(row[0]).date()
 
@@ -228,7 +239,8 @@ def load_data():
                 loaded_data.append(ColourPeriod(start_date=start_date,
                                                red_areas=red_areas,
                                                orange_areas=orange_areas,
-                                               yellow_areas=yellow_areas))
+                                               yellow_areas=yellow_areas,
+                                               white_areas=white_areas))
                 
                 # update end date for previous colour period
                 if len(loaded_data) > 1:
