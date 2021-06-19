@@ -2,6 +2,9 @@
 import csv
 from datetime import datetime, timedelta
 from enum import Enum
+import os
+import zipfile
+import json
 
 ALL_AREAS = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Lombardia", "Piemonte", "P.A. Bolzano", "Toscana", "Valle d'Aosta", "Emilia-Romagna",  "Friuli Venezia Giulia", "Lazio", "Liguria", "Marche", "Molise", "P.A. Trento", "Puglia", "Sardegna", "Sicilia", "Umbria", "Veneto"]
 
@@ -249,6 +252,62 @@ def load_data():
     return loaded_data
 
 
+def update_colour_data():
+    """
+    Update area colour file based on the latest repository info
+    """
+    # TODO: if data is already up to date -> exit
+
+    # unzip file
+    zip_file_path = os.path.join('COVID-19', 'aree', 'geojson', 'dpc-covid-19-aree-nuove-g-json.zip')
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        zip_ref.extractall(os.path.dirname(zip_file_path))
+
+    # parse json
+    colour_file_path = os.path.join('COVID-19', 'aree', 'geojson', 'dpc-covid-19-aree-nuove-g.json')
+
+    with open(colour_file_path, 'r') as colour_file:
+        colour_data = json.load(colour_file)
+        colour_data_dict = {}
+
+        for colour_info in colour_data['features']:
+
+            region_name = colour_info['properties']['nomeTesto']
+            start_date = colour_info['properties']['datasetIni']
+            end_date = colour_info['properties']['datasetFin']
+
+            colour = AreaColour.NONE
+
+            if colour_info['properties']['legSpecRif'] == 'art.1':
+                colour = AreaColour.YELLOW
+            elif colour_info['properties']['legSpecRif'] == 'art.2':
+                colour = AreaColour.ORANGE
+            elif colour_info['properties']['legSpecRif'] == 'art.3':
+                colour = AreaColour.RED
+            elif colour_info['properties']['legSpecRif'] == 'art.1 comma 11':
+                colour = AreaColour.WHITE
+
+            print("Region: " + region_name + " data " + str({'Start': start_date, 'End': end_date, 'Colour': colour}))
+
+            if region_name in colour_data_dict:
+                colour_data_dict[region_name].append({'Start': start_date, 'End': end_date, 'Colour': colour})
+            else:
+                colour_data_dict[region_name] = [{'Start': start_date, 'End': end_date, 'Colour': colour}]
+
+    # update csv
+
+    # if validate_data() is True:
+    #     update the correct csv
+    # else:
+    #     print("Error in validating colour csv. Data not updated")
+    
+    # clean files
+    os.remove(colour_file_path)
+    # remove temporary file
+
+    return
+
+
 def validate_data():
     """
     Validate data
@@ -282,7 +341,7 @@ def validate_data():
     if all_data_is_ok:
         print("Data is correct!")
 
-    return True
+    return all_data_is_ok
 
 
 def get_area_colour(dates, area=None):
@@ -316,6 +375,6 @@ def get_area_colour(dates, area=None):
     return area_colours
 
 if __name__ == "__main__":
-    validate_data()
+    update_colour_data()
 
     exit(0)
