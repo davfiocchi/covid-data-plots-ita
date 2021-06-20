@@ -272,10 +272,15 @@ def update_colour_data():
 
         for colour_info in colour_data['features']:
 
+            # retrieve info
             region_name = colour_info['properties']['nomeTesto']
-            start_date = colour_info['properties']['datasetIni']
-            end_date = colour_info['properties']['datasetFin']
-
+            
+            start_date = datetime.strptime(colour_info['properties']['datasetIni'], "%d/%m/%Y")
+            try:
+                end_date = datetime.strptime(colour_info['properties']['datasetFin'], "%d/%m/%Y")
+            except:
+                end_date = None
+            
             colour = AreaColour.NONE
 
             if colour_info['properties']['legSpecRif'] == 'art.1':
@@ -287,9 +292,14 @@ def update_colour_data():
             elif colour_info['properties']['legSpecRif'] == 'art.1 comma 11':
                 colour = AreaColour.WHITE
 
-            print("Region: " + region_name + " data " + str({'Start': start_date, 'End': end_date, 'Colour': colour}))
-
+            # store colour info into dictionary
             if region_name in colour_data_dict:
+                # modify previous end date accordingly to the new start date
+                previous_colour_data_info = colour_data_dict[region_name][-1]
+                previous_colour_data_info['End'] = start_date - timedelta(1)
+                colour_data_dict[region_name][-1] = previous_colour_data_info
+
+                # append the new item
                 colour_data_dict[region_name].append({'Start': start_date, 'End': end_date, 'Colour': colour})
             else:
                 colour_data_dict[region_name] = [{'Start': start_date, 'End': end_date, 'Colour': colour}]
