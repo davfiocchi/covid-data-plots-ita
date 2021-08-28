@@ -9,6 +9,8 @@ import copy
 
 ALL_AREAS = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Lombardia", "Piemonte", "P.A. Bolzano", "Toscana", "Valle d'Aosta", "Emilia-Romagna",  "Friuli Venezia Giulia", "Lazio", "Liguria", "Marche", "Molise", "P.A. Trento", "Puglia", "Sardegna", "Sicilia", "Umbria", "Veneto"]
 
+CSV_FILENAME = "area_colour.csv"
+
 
 class AreaColour(Enum):
     RED = 1
@@ -80,6 +82,16 @@ class ColourPeriod:
         End date
         """
         return self.end_date
+
+    def get_start_date(self):
+        """
+        Get the start date of the actual colour period
+
+        Returns
+        ----------
+        Start date
+        """
+        return self.start_date
     
     def contains_duplicates(self):
         """
@@ -299,7 +311,7 @@ def load_data():
     """
     loaded_data = []
 
-    with open('area_colour.csv') as csv_file:
+    with open(CSV_FILENAME) as csv_file:
         file_content = csv.reader(csv_file, delimiter=',')
 
         for row_index, row in enumerate(file_content):
@@ -326,6 +338,39 @@ def load_data():
                     loaded_data[-2].set_end_date(start_date)
 
     return loaded_data
+
+
+def store_data(colour_dictionary):
+    """
+    Store data from file
+
+    Internal function to convert Python structures into csv format
+
+    Parameters
+    ----------
+    colour_dictionary : dict
+        {
+            start_date_isoformat_1: ColourPeriod,
+            start_date_isoformat_2: ColourPeriod,
+            ... 
+        }
+    """
+    with open(CSV_FILENAME, "w", newline='') as csv_file:
+        file_writer = csv.writer(csv_file, delimiter=',')
+
+        file_writer.writerow(['Date','Red','Orange','Yellow','White'])
+
+        colour_period_list = colour_dictionary.values()
+
+        for period in sorted(colour_period_list, key=lambda item: item.get_start_date()):
+
+            file_writer.writerow([period.get_start_date().isoformat(),
+                                  str(period.get_areas(AreaColour.RED)),
+                                  str(period.get_areas(AreaColour.ORANGE)),
+                                  str(period.get_areas(AreaColour.YELLOW)),
+                                  str(period.get_areas(AreaColour.WHITE))])
+
+    return
 
 
 def add_colour_info_to_colour_dictionary(colour_info, colour_dictionary):
@@ -366,7 +411,6 @@ def add_colour_info_to_colour_dictionary(colour_info, colour_dictionary):
             additional_start_date, colour_dictionary = add_colour_info_to_colour_dictionary(colour_info, colour_dictionary)
 
             start_dates = start_dates + additional_start_date
-            print("Original colour info end: " + str(colour_info['End']) + ", Period colour info end: " + str(colour_dictionary[start_dates[0]].get_end_date()) + ", start dates: " + str(start_dates))
 
         elif colour_info['End'] < colour_dictionary[start_dates[0]].get_end_date():
             new_period_start_date = colour_info['End'] + timedelta(1)
@@ -462,6 +506,7 @@ def update_colour_data():
                 date_colour_dict[start_date].add_area(area_name, colour_info['Colour'])
             
     # update csv
+    store_data(date_colour_dict)
 
     # if validate_data() is True:
     #     update the correct csv
