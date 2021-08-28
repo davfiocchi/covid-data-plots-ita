@@ -5,6 +5,7 @@ from enum import Enum
 import os
 import zipfile
 import json
+import copy
 
 ALL_AREAS = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Lombardia", "Piemonte", "P.A. Bolzano", "Toscana", "Valle d'Aosta", "Emilia-Romagna",  "Friuli Venezia Giulia", "Lazio", "Liguria", "Marche", "Molise", "P.A. Trento", "Puglia", "Sardegna", "Sicilia", "Umbria", "Veneto"]
 
@@ -69,7 +70,7 @@ class ColourPeriod:
             Start date for the next period
         """
         self.end_date = next_period_start_date - timedelta(1)
-    
+
     def get_end_date(self):
         """
         Get the end date of the actual colour period
@@ -327,9 +328,67 @@ def load_data():
     return loaded_data
 
 
+def add_colour_info_to_colour_dictionary(colour_info, colour_dictionary):
+    """
+    Add colour info to date-colour dictionary based on colour_info start and end dates
+
+    Parameters
+    ----------
+    colour_info : dict
+        {'Start': datetime, 'End': datetime, 'Colour': AreaColour}
+
+    colour_dictionary : dict
+        {
+            start_date_isoformat_1: ColourPeriod,
+            start_date_isoformat_2: ColourPeriod,
+            ... 
+        }
+
+    Returns
+    -------
+    list
+        list of all start dates of colour_dictionary in which the colour_info has an impact
+    
+    colour_dictionary
+        the updated colour_dictionary
+    """
+    # this contains a list of all the start dates of colour_dictionary
+    # that needs to add the area stored in colour_info
+    # (len(start_dates)>1 only if colour_info end date > colour_dictionary end date)
+    start_dates = [colour_info['Start'].isoformat()]
+
+    if start_dates[0] in colour_dictionary:
+        
+        if colour_info['End'] > colour_dictionary[start_dates[0]].get_end_date():
+            # set new period start date to be the end+1 of colour dictionary period 
+            colour_info['Start'] = colour_dictionary[start_dates[0]].get_end_date() + timedelta(1)
+            # add new period to dictionary
+            additional_start_date, colour_dictionary = add_colour_info_to_colour_dictionary(colour_info, colour_dictionary)
+
+            start_dates = start_dates + additional_start_date
+            print("Original colour info end: " + str(colour_info['End']) + ", Period colour info end: " + str(colour_dictionary[start_dates[0]].get_end_date()) + ", start dates: " + str(start_dates))
+
+        elif colour_info['End'] < colour_dictionary[start_dates[0]].get_end_date():
+            new_period_start_date = colour_info['End'] + timedelta(1)
+            new_period_start_date_isofmt = new_period_start_date.isoformat()
+
+            # create new period with same areas but start period is the day after colour_info end date
+            colour_dictionary[new_period_start_date_isofmt] = copy.deepcopy(ColourPeriod(start_date=new_period_start_date, end_date=colour_dictionary[start_dates[0]].get_end_date()))
+            colour_dictionary[new_period_start_date_isofmt].copy_areas_from_other_instance(colour_dictionary[start_dates[0]])
+
+            # set end date of original period to the start of new period
+            colour_dictionary[start_dates[0]].set_end_date(new_period_start_date)
+
+    else:
+        # create a new ColourPeriod instance
+        colour_dictionary[start_dates[0]] = copy.deepcopy(ColourPeriod(start_date=colour_info['Start'], end_date=colour_info['End']))
+
+    return start_dates, colour_dictionary
+
+
 def update_colour_data():
     """
-    Update area colour file based on the latest repository info
+    Update area colour csv file based on the latest repository info
     """
     # TODO: if data is already up to date -> exit
 
@@ -340,21 +399,21 @@ def update_colour_data():
 
     # parse json
     colour_file_path = os.path.join('COVID-19', 'aree', 'geojson', 'dpc-covid-19-aree-nuove-g.json')
+    area_colour_dict = {}
 
     with open(colour_file_path, 'r') as colour_file:
         colour_data = json.load(colour_file)
-        colour_data_dict = {}
 
         for colour_info in colour_data['features']:
 
             # retrieve info
-            region_name = colour_info['properties']['nomeTesto']
+            area_name = colour_info['properties']['nomeTesto']
             
-            start_date = datetime.strptime(colour_info['properties']['datasetIni'], "%d/%m/%Y")
+            start_date = datetime.strptime(colour_info['properties']['datasetIni'], "%d/%m/%Y").date()
             try:
-                end_date = datetime.strptime(colour_info['properties']['datasetFin'], "%d/%m/%Y")
+                end_date = datetime.strptime(colour_info['properties']['datasetFin'], "%d/%m/%Y").date()
             except:
-                end_date = None
+                end_date = datetime.now().date()
             
             colour = AreaColour.NONE
 
@@ -368,17 +427,40 @@ def update_colour_data():
                 colour = AreaColour.WHITE
 
             # store colour info into dictionary
-            if region_name in colour_data_dict:
-                # modify previous end date accordingly to the new start date
-                previous_colour_data_info = colour_data_dict[region_name][-1]
-                previous_colour_data_info['End'] = start_date - timedelta(1)
-                colour_data_dict[region_name][-1] = previous_colour_data_info
+            if area_name in area_colour_dict:
 
-                # append the new item
-                colour_data_dict[region_name].append({'Start': start_date, 'End': end_date, 'Colour': colour})
+                previous_colour_data_info = area_colour_dict[area_name][-1]
+
+                if previous_colour_data_info['Start'] == start_date:
+                    # replace previous data with newest one
+                    area_colour_dict[area_name][-1] = {'Start': start_date, 'End': end_date, 'Colour': colour}
+                
+                elif previous_colour_data_info['End'] > start_date:
+                    # modify previous end date accordingly to the new start date 
+                    previous_colour_data_info['End'] = start_date - timedelta(1)
+                    area_colour_dict[area_name][-1] = previous_colour_data_info
+                    # append the new element
+                    area_colour_dict[area_name].append({'Start': start_date, 'End': end_date, 'Colour': colour})
+                
+                else:
+                    # just append the new element
+                    area_colour_dict[area_name].append({'Start': start_date, 'End': end_date, 'Colour': colour})
+
+                area_colour_dict[area_name].sort(key=lambda item: item['Start'])
             else:
-                colour_data_dict[region_name] = [{'Start': start_date, 'End': end_date, 'Colour': colour}]
+                area_colour_dict[area_name] = [{'Start': start_date, 'End': end_date, 'Colour': colour}]
 
+    date_colour_dict = {}
+
+    for area_name in area_colour_dict:
+
+        for colour_info in area_colour_dict[area_name]:
+
+            start_dates, date_colour_dict = add_colour_info_to_colour_dictionary(colour_info, date_colour_dict)
+            
+            for start_date in start_dates:
+                date_colour_dict[start_date].add_area(area_name, colour_info['Colour'])
+            
     # update csv
 
     # if validate_data() is True:
