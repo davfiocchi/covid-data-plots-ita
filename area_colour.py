@@ -70,6 +70,16 @@ class ColourPeriod:
         """
         self.end_date = next_period_start_date - timedelta(1)
     
+    def get_end_date(self):
+        """
+        Get the end date of the actual colour period
+
+        Returns
+        ----------
+        End date
+        """
+        return self.end_date
+    
     def contains_duplicates(self):
         """
         Check if more than one colour is assigned to a single area
@@ -209,6 +219,71 @@ class ColourPeriod:
             }
         else:
             return AreaColour.NONE
+
+    def add_area(self, area_name, colour):
+        """
+        Add the provided area to the list of areas with the specified colour
+
+        Parameters
+        ----------
+        area : str
+            Area name to be added
+
+        colour : AreaColour
+            The area colour
+        """
+        if colour == AreaColour.RED:
+            self.red_areas.append(area_name)
+        elif colour == AreaColour.ORANGE:
+            self.orange_areas.append(area_name)
+        elif colour == AreaColour.YELLOW:
+            self.yellow_areas.append(area_name)
+        elif colour == AreaColour.WHITE:
+            self.white_areas.append(area_name)
+
+    def get_areas(self, colour):
+        """
+        Returns the list of areas with the specified colour
+
+        Parameters
+        ----------
+        colour : AreaColour
+            colour of the areas to be retrieved
+
+        Returns
+        ----------
+        list
+            List of areas with the specified colour
+        """
+        if colour == AreaColour.RED:
+            return self.red_areas
+        elif colour == AreaColour.ORANGE:
+            return self.orange_areas
+        elif colour == AreaColour.YELLOW:
+            return self.yellow_areas
+        elif colour == AreaColour.WHITE:
+            return self.white_areas
+        else:
+            return []
+
+    def copy_areas_from_other_instance(self, other_instance):
+        """
+        Copy all the areas from other ColourPeriod instance
+
+        Parameters
+        ----------
+        other_instance : ColourPeriod
+            instance from which all the areas should be copied
+        """
+        for red_area_name in other_instance.get_areas(AreaColour.RED):
+            self.add_area(red_area_name, AreaColour.RED)
+        for orange_area_name in other_instance.get_areas(AreaColour.ORANGE):
+            self.add_area(orange_area_name, AreaColour.ORANGE)
+        for yellow_area_name in other_instance.get_areas(AreaColour.YELLOW):
+            self.add_area(yellow_area_name, AreaColour.YELLOW)
+        for white_area_name in other_instance.get_areas(AreaColour.WHITE):
+            self.add_area(white_area_name, AreaColour.WHITE)
+
 
 def load_data():
     """
